@@ -7,6 +7,16 @@ export function validationMiddleware<T extends object>(
   skipMissingProperties = false
 ) {
   return async (req: Request, res: Response, next: NextFunction) => {
+    // Handle case where req.body is undefined or null
+    if (!req.body) {
+      res.status(400).json({
+        error: "Validation failed",
+        message: "Request body is required",
+        details: []
+      });
+      return;
+    }
+
     const dto = plainToClass(type, req.body);
     const errors: ValidationError[] = await validate(dto, {
       skipMissingProperties,

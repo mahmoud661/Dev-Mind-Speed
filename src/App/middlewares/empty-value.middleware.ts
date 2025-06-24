@@ -1,6 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 
 export function emptyValueMiddleware(req: Request, res: Response, next: NextFunction) {
+  // Handle case where req.body is undefined or null
+  if (!req.body) {
+    res.status(400).json({
+      error: "Empty values not allowed",
+      message: "Request body is required",
+      emptyFields: ["body"]
+    });
+    return;
+  }
+
   const checkForEmptyValues = (obj: Record<string, unknown>, path = ""): string[] => {
     const emptyFields: string[] = [];
     
