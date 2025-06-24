@@ -118,7 +118,7 @@ export class GameService {
     const questions = await this.questionRepo.findByGameIdWithAnswers(gameId);
     
     // Find the current question (the one without an answer)
-    let currentQuestion = questions.find(q => q.answers.length === 0);
+    const currentQuestion = questions.find(q => q.answers.length === 0);
     if (!currentQuestion) {
       throw new Error("No unanswered questions found");
     }
