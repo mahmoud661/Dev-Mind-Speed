@@ -31,9 +31,9 @@
     "class-validator": "^0.14.1",
     "express": "^5.1.0",
     "glob": "^11.0.1",
-
+    "mysql2": "^3.14.1",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0",
-    "typeorm": "^0.3.22"
+    "typeorm": "^0.3.25"
   }
 }
