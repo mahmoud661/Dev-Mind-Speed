@@ -1,4 +1,4 @@
-import { injectable, container } from "tsyringe";
+import { container } from "tsyringe";
 import { BaseRoute } from "./base-route";
 import { GameController } from "../../App/controllers/Game.controller";
 import { 
@@ -9,40 +9,26 @@ import {
 import { StartGameDto } from "../../Domain/dtos/StartGameDto";
 import { SubmitAnswerDto } from "../../Domain/dtos/SubmitAnswerDto";
 
-@injectable()
 export class GameRoute extends BaseRoute {
   public path = "/game";
-  private gameController: GameController;
-
-  constructor() {
-    super();
-    this.gameController = container.resolve(GameController);
-  }
-
+  
   protected initRoutes(): void {
-    // POST /game/start - Start a new game
+    const controller = container.resolve(GameController);
+
     this.router.post("/start", 
       sanitizeInputMiddleware,
       emptyValueMiddleware,
       validationMiddleware(StartGameDto),
-      (req, res) => {
-        this.gameController.startGame(req, res);
-      }
+      controller.startGame.bind(controller)
     );
 
-    // POST /game/:gameId/submit - Submit an answer
     this.router.post("/:gameId/submit",
       sanitizeInputMiddleware,
       emptyValueMiddleware,
       validationMiddleware(SubmitAnswerDto),
-      (req, res) => {
-        this.gameController.submitAnswer(req, res);
-      }
+      controller.submitAnswer.bind(controller)
     );
 
-    // GET /game/:gameId/end - End a game
-    this.router.get("/:gameId/end", (req, res) => {
-      this.gameController.endGame(req, res);
-    });
+    this.router.get("/:gameId/end", controller.endGame.bind(controller));
   }
 }

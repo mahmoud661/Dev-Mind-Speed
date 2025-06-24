@@ -4,28 +4,24 @@ import { Player } from "../../Domain/entities/player.entity";
 import { Game } from "../../Domain/entities/game.entity";
 import { Question } from "../../Domain/entities/question.entity";
 import { Answer } from "../../Domain/entities/answer.entity";
+import dotenv from "dotenv";
+dotenv.config();
 
 // Database configuration
 export const AppDataSource = new DataSource({
-  type: "mysql", // Change to "postgres", "sqlite", etc. based on your database
+  type: "mysql",
   host: process.env.DB_HOST || "localhost",
   port: parseInt(process.env.DB_PORT || "3306"),
   username: process.env.DB_USERNAME || "root",
-  password: process.env.DB_PASSWORD || "123456",
+  password: process.env.DB_PASSWORD || "",
   database: process.env.DB_NAME || "dev_mind_speed",
   synchronize: process.env.NODE_ENV !== "production", // Auto-sync schema in development
-  logging: process.env.NODE_ENV === "development",
+  logging: process.env.NODE_ENV === "development" ? ["error", "warn"] : false,
   entities: [
     Player,
     Game,
     Question,
     Answer
-  ],
-  migrations: [
-    __dirname + "/migrations/*.ts"
-  ],
-  subscribers: [
-    __dirname + "/subscribers/*.ts"
   ],
 });
 

@@ -1,45 +1,45 @@
 import { injectable } from "tsyringe";
-import { Repository, DataSource } from "typeorm";
 import { Game } from "../../../Domain/entities/game.entity";
 import { IGameRepo } from "../../../Domain/interfaces/IGameRepo";
+import { AppDataSource } from "../init-db";
 
 @injectable()
 export class GameRepo implements IGameRepo {
-  private repository: Repository<Game>;
+  private _gameRepo;
 
-  constructor(private dataSource: DataSource) {
-    this.repository = this.dataSource.getRepository(Game);
+  constructor() {
+    this._gameRepo = AppDataSource.getRepository(Game);
   }
 
   async create(playerId: number, difficulty: number): Promise<Game> {
-    const game = this.repository.create({ 
+    const game = this._gameRepo.create({ 
       playerId, 
       difficulty,
       currentScore: 0,
       totalTimeSpent: 0
     });
-    return await this.repository.save(game);
+    return await this._gameRepo.save(game);
   }
 
   async findById(id: number): Promise<Game | null> {
-    return await this.repository.findOne({ 
+    return await this._gameRepo.findOne({ 
       where: { gameId: id },
       relations: ['player']
     });
   }
 
   async findByIdWithQuestions(id: number): Promise<Game | null> {
-    return await this.repository.findOne({ 
+    return await this._gameRepo.findOne({ 
       where: { gameId: id },
       relations: ['player', 'questions', 'questions.answers']
     });
   }
 
   async update(game: Game): Promise<Game> {
-    return await this.repository.save(game);
+    return await this._gameRepo.save(game);
   }
 
   async endGame(gameId: number): Promise<void> {
-    await this.repository.update(gameId, { endTime: new Date() });
+    await this._gameRepo.update(gameId, { endTime: new Date() });
   }
 }
