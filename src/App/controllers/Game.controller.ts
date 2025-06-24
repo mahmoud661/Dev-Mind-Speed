@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import { injectable, inject } from "tsyringe";
-import { validate } from "class-validator";
-import { plainToClass } from "class-transformer";
 import { GameService } from "../services/Game.service";
-import { StartGameDto } from "../../Domain/dtos/StartGameDto";
-import { SubmitAnswerDto } from "../../Domain/dtos/SubmitAnswerDto";
 
 @injectable()
 export class GameController {
@@ -14,25 +10,10 @@ export class GameController {
 
   async startGame(req: Request, res: Response): Promise<void> {
     try {
-      const startGameDto = plainToClass(StartGameDto, req.body);
-      const errors = await validate(startGameDto);
+      // req.body is already validated and sanitized by middleware
+      const { name, difficulty } = req.body;
 
-      if (errors.length > 0) {
-        res.status(400).json({
-          error: "Validation failed",
-          details: errors.map(error => ({
-            property: error.property,
-            constraints: error.constraints
-          }))
-        });
-        return;
-      }
-
-      const result = await this.gameService.startGame(
-        startGameDto.name,
-        startGameDto.difficulty
-      );
-
+      const result = await this.gameService.startGame(name, difficulty);
       res.status(201).json(result);
     } catch (error) {
       console.error("Error starting game:", error);
@@ -51,25 +32,10 @@ export class GameController {
         return;
       }
 
-      const submitAnswerDto = plainToClass(SubmitAnswerDto, req.body);
-      const errors = await validate(submitAnswerDto);
+      // req.body is already validated and sanitized by middleware
+      const { answer } = req.body;
 
-      if (errors.length > 0) {
-        res.status(400).json({
-          error: "Validation failed",
-          details: errors.map(error => ({
-            property: error.property,
-            constraints: error.constraints
-          }))
-        });
-        return;
-      }
-
-      const result = await this.gameService.submitAnswer(
-        gameId,
-        submitAnswerDto.answer
-      );
-
+      const result = await this.gameService.submitAnswer(gameId, answer);
       res.status(200).json(result);
     } catch (error) {
       console.error("Error submitting answer:", error);
