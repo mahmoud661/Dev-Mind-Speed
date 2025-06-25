@@ -1,18 +1,18 @@
 import express, { Application } from "express";
-import { BaseRoute } from "./routes/base-route";
-import { glob } from "glob";
-import path from "path";
-import { errorHandlerMiddleware } from "./middlewares";
 import { createServer, Server as HttpServer } from "http";
+import { errorHandlerMiddleware } from "./middlewares";
+import { RouteRegistry } from "./RouteRegistry";
 
 export class AppServer {
   public app: Application;
   public httpServer: HttpServer;
+  private routeRegistry: RouteRegistry;
   private readonly apiPrefix = "/api/v1";
   
   constructor() {
     this.app = express();
     this.httpServer = createServer(this.app);
+    this.routeRegistry = new RouteRegistry(this.app, this.apiPrefix);
     this.setupMiddleware();
   }
 
@@ -22,32 +22,7 @@ export class AppServer {
   }
 
   private async setupRoutes() {
-    // Health check endpoint
-    this.app.get("/health", (req, res) => {
-      res.status(200).json({ status: "OK", message: "Dev Mind Speed API is running" });
-    });
-
-    const routeFiles = await glob(
-      path.resolve(__dirname, "routes/*.ts").replace(/\\/g, "/")
-    );
-
-    for (const filePath of routeFiles) {
-      const module = await import(filePath);
-      for (const exportedName in module) {
-        const RouteClass = module[exportedName];
-        if (
-          typeof RouteClass === "function" &&
-          Object.getPrototypeOf(RouteClass).name === "BaseRoute"
-        ) {
-          const routeInstance: BaseRoute = new RouteClass();
-          this.app.use(
-            `${this.apiPrefix}${routeInstance.path}`,
-            routeInstance.router
-          );
-          console.log(`✅ Loaded route: ${routeInstance.path}`);
-        }
-      }
-    }
+    await this.routeRegistry.registerRoutes();
   }
 
   public async listen(port: number): Promise<void> {
