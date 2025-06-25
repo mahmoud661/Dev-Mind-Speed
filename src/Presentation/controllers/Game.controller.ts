@@ -1,13 +1,38 @@
+/**
+ * @fileoverview Game controller handling HTTP requests for game operations.
+ * Processes requests, delegates to service layer, and formats responses.
+ */
+
 import { Request, Response } from "express";
 import { injectable, inject } from "tsyringe";
 import { GameService } from "../../App/services/Game.service";
 
+/**
+ * Controller class handling game-related HTTP requests.
+ * Processes requests, validates parameters, and delegates business logic to GameService.
+ * 
+ * @class GameController
+ */
 @injectable()
 export class GameController {
+  /**
+   * Creates a new GameController instance with injected dependencies.
+   * 
+   * @param {GameService} gameService - Service for game business logic
+   */
   constructor(
     @inject(GameService) private gameService: GameService
   ) {}
 
+  /**
+   * Handles POST /game/start requests to start a new game.
+   * Creates a new game session for the player with specified difficulty.
+   * 
+   * @async
+   * @param {Request} req - Express request object containing player name and difficulty
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} Promise that resolves when response is sent
+   */
   async startGame(req: Request, res: Response): Promise<void> {
     try {
       // req.body is already validated and sanitized by middleware
@@ -24,6 +49,15 @@ export class GameController {
     }
   }
 
+  /**
+   * Handles POST /game/:gameId/submit requests to submit an answer.
+   * Processes player's answer submission and returns feedback with next question if applicable.
+   * 
+   * @async
+   * @param {Request} req - Express request object containing game ID and answer
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} Promise that resolves when response is sent
+   */
   async submitAnswer(req: Request, res: Response): Promise<void> {
     try {
       const gameId = parseInt(req.params.gameId);
@@ -62,6 +96,15 @@ export class GameController {
     }
   }
 
+  /**
+   * Handles GET /game/:gameId/end requests to end a game session.
+   * Ends the game and returns final statistics including scores and history.
+   * 
+   * @async
+   * @param {Request} req - Express request object containing game ID
+   * @param {Response} res - Express response object
+   * @returns {Promise<void>} Promise that resolves when response is sent
+   */
   async endGame(req: Request, res: Response): Promise<void> {
     try {
       const gameId = parseInt(req.params.gameId);

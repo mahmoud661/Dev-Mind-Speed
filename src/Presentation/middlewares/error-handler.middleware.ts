@@ -1,5 +1,20 @@
+/**
+ * @fileoverview Global error handling middleware for Express application.
+ * Provides centralized error processing and appropriate HTTP responses.
+ */
+
 import { Request, Response, NextFunction } from "express";
 
+/**
+ * Express error handling middleware that processes uncaught errors.
+ * Logs error details and returns appropriate HTTP responses based on error type.
+ * 
+ * @param {Error} error - The error object that was thrown
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {NextFunction} _next - Express next function (unused but required for error middleware signature)
+ * @returns {void}
+ */
 export function errorHandlerMiddleware(
   error: Error,
   req: Request,

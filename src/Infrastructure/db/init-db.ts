@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Database configuration and initialization for TypeORM.
+ * Handles MySQL database connection, schema synchronization, and connection lifecycle.
+ */
+
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { Player } from "../../Domain/entities/player.entity";
@@ -7,7 +12,10 @@ import { Answer } from "../../Domain/entities/answer.entity";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Database configuration
+/**
+ * TypeORM DataSource configuration for MySQL database.
+ * Configured with environment variables and entity classes.
+ */
 export const AppDataSource = new DataSource({
   type: "mysql",
   host: process.env.DB_HOST || "localhost",
@@ -25,7 +33,15 @@ export const AppDataSource = new DataSource({
   ],
 });
 
-// Create database if it doesn't exist
+/**
+ * Creates the database if it doesn't exist.
+ * Uses a temporary connection without specifying database to create the target database.
+ * 
+ * @async
+ * @function createDatabaseIfNotExists
+ * @returns {Promise<void>} Promise that resolves when database is created or confirmed to exist
+ * @throws {Error} When database creation fails
+ */
 async function createDatabaseIfNotExists(): Promise<void> {
   const dbName = process.env.DB_NAME || "dev_mind_speed";
   
@@ -56,7 +72,15 @@ async function createDatabaseIfNotExists(): Promise<void> {
   }
 }
 
-// Initialize database connection
+/**
+ * Initializes the database connection and synchronizes schema.
+ * Creates database if it doesn't exist, establishes connection, and runs schema sync in development.
+ * 
+ * @async
+ * @function initializeDatabase
+ * @returns {Promise<void>} Promise that resolves when database is initialized
+ * @throws {Error} When database initialization fails
+ */
 export async function initializeDatabase(): Promise<void> {
   try {
     console.log("Initializing database connection...");
@@ -84,7 +108,14 @@ export async function initializeDatabase(): Promise<void> {
   }
 }
 
-// Close database connection
+/**
+ * Closes the database connection gracefully.
+ * 
+ * @async
+ * @function closeDatabase
+ * @returns {Promise<void>} Promise that resolves when database connection is closed
+ * @throws {Error} When database closure fails
+ */
 export async function closeDatabase(): Promise<void> {
   try {
     if (AppDataSource.isInitialized) {
@@ -97,7 +128,15 @@ export async function closeDatabase(): Promise<void> {
   }
 }
 
-// Get repository for an entity
+/**
+ * Gets a TypeORM repository for the specified entity.
+ * 
+ * @template T - The entity type
+ * @param {new () => T} entity - The entity constructor
+ * @returns {Repository<T>} TypeORM repository instance for the entity
+ * @example
+ * const playerRepo = getRepository(Player);
+ */
 export function getRepository<T>(entity: new () => T) {
   return AppDataSource.getRepository(entity);
 }

@@ -1,7 +1,26 @@
+/**
+ * @fileoverview Sanitization middleware for cleaning user input.
+ * Removes leading/trailing whitespace from string values in request body.
+ */
+
 import { Request, Response, NextFunction } from "express";
 
+/**
+ * Express middleware that sanitizes input by removing leading/trailing whitespace.
+ * Recursively processes objects and arrays to clean all string values.
+ * 
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next function
+ * @returns {void}
+ */
 export function sanitizeInputMiddleware(req: Request, res: Response, next: NextFunction) {
-  // Remove leading/trailing whitespace from string values
+  /**
+   * Recursively sanitizes an object by trimming string values.
+   * 
+   * @param {unknown} obj - The object to sanitize
+   * @returns {unknown} The sanitized object
+   */
   const sanitizeObject = (obj: unknown): unknown => {
     if (typeof obj === 'string') {
       return obj.trim();

@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Game service containing business logic for game operations.
+ * Handles game creation, question generation, answer processing, and game ending.
+ */
+
 import { injectable, inject } from "tsyringe";
 import { IPlayerRepo } from "../../Domain/interfaces/IPlayerRepo";
 import { IGameRepo } from "../../Domain/interfaces/IGameRepo";
@@ -11,8 +16,22 @@ import {
   GameHistory
 } from "../../Domain/dtos/GameResponseDtos";
 
+/**
+ * Service class handling game business logic.
+ * Manages game lifecycle, question generation, and score calculation.
+ * 
+ * @class GameService
+ */
 @injectable()
 export class GameService {
+  /**
+   * Creates a new GameService instance with injected dependencies.
+   * 
+   * @param {IPlayerRepo} playerRepo - Repository for player operations
+   * @param {IGameRepo} gameRepo - Repository for game operations  
+   * @param {IQuestionRepo} questionRepo - Repository for question operations
+   * @param {IAnswerRepo} answerRepo - Repository for answer operations
+   */
   constructor(
     @inject("IPlayerRepo") private playerRepo: IPlayerRepo,
     @inject("IGameRepo") private gameRepo: IGameRepo,
@@ -20,6 +39,14 @@ export class GameService {
     @inject("IAnswerRepo") private answerRepo: IAnswerRepo
   ) {}
 
+  /**
+   * Generates a math question based on the specified difficulty level.
+   * Creates mathematical expressions with appropriate complexity for each difficulty.
+   * 
+   * @private
+   * @param {number} difficulty - Difficulty level (1-4)
+   * @returns {{ question: string; answer: number }} Object containing question text and correct answer
+   */
   private generateMathQuestion(difficulty: number): { question: string; answer: number } {
     const difficultyConfig = {
       1: { operands: 2, digits: 1 },
@@ -70,18 +97,43 @@ export class GameService {
     };
   }
 
+  /**
+   * Generates a random number with the specified number of digits.
+   * 
+   * @private
+   * @param {number} digits - Number of digits for the generated number
+   * @returns {number} Random number with the specified digit count
+   */
   private generateRandomNumber(digits: number): number {
     const min = Math.pow(10, digits - 1);
     const max = Math.pow(10, digits) - 1;
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
+  /**
+   * Evaluates a mathematical expression string and returns the result.
+   * Note: In production, use a proper math expression parser for security.
+   * 
+   * @private
+   * @param {string} expression - Mathematical expression to evaluate
+   * @returns {number} Result of the mathematical expression
+   */
   private evaluateExpression(expression: string): number {
     // Simple math expression evaluator
     // Note: In production, use a proper math expression parser for security
     return Function(`"use strict"; return (${expression})`)();
   }
 
+  /**
+   * Starts a new game for the specified player.
+   * Creates or finds player, creates game session, and generates first question.
+   * 
+   * @async
+   * @param {string} name - Name of the player starting the game
+   * @param {number} difficulty - Difficulty level (1-4)
+   * @returns {Promise<StartGameResponse>} Promise resolving to game start response
+   * @throws {Error} When game creation fails
+   */
   async startGame(name: string, difficulty: number): Promise<StartGameResponse> {
     // Find or create player
     let player = await this.playerRepo.findByName(name);
@@ -104,6 +156,16 @@ export class GameService {
     };
   }
 
+  /**
+   * Processes a player's answer submission for the current question.
+   * Validates answer, calculates timing, updates scores, and generates next question if applicable.
+   * 
+   * @async
+   * @param {number} gameId - ID of the game session
+   * @param {number} playerAnswer - Numerical answer provided by the player
+   * @returns {Promise<SubmitAnswerResponse>} Promise resolving to answer submission response
+   * @throws {Error} When game not found, game ended, or no unanswered questions
+   */
   async submitAnswer(gameId: number, playerAnswer: number): Promise<SubmitAnswerResponse> {
     const game = await this.gameRepo.findByIdWithQuestions(gameId);
     if (!game) {
@@ -174,6 +236,15 @@ export class GameService {
     return response;
   }
 
+  /**
+   * Ends a game session and calculates final statistics.
+   * Computes scores, identifies best performance, and compiles game history.
+   * 
+   * @async
+   * @param {number} gameId - ID of the game session to end
+   * @returns {Promise<EndGameResponse>} Promise resolving to game end response with statistics
+   * @throws {Error} When game not found
+   */
   async endGame(gameId: number): Promise<EndGameResponse> {
     const game = await this.gameRepo.findByIdWithQuestions(gameId);
     if (!game) {
