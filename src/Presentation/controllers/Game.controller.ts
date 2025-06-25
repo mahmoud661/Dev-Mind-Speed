@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { injectable, inject } from "tsyringe";
-import { GameService } from "../services/Game.service";
+import { GameService } from "../../App/services/Game.service";
 
 @injectable()
 export class GameController {

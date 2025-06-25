@@ -1,11 +1,11 @@
 import { container } from "tsyringe";
 import { BaseRoute } from "./base-route";
-import { GameController } from "../../App/controllers/Game.controller";
+import { GameController } from "../controllers/Game.controller";
 import { 
   validationMiddleware, 
   sanitizeInputMiddleware, 
   emptyValueMiddleware 
-} from "../../App/middlewares";
+} from "../middlewares";
 import { StartGameDto } from "../../Domain/dtos/StartGameDto";
 import { SubmitAnswerDto } from "../../Domain/dtos/SubmitAnswerDto";
 

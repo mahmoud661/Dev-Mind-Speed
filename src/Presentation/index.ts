@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import { BaseRoute } from "./routes/base-route";
 import { glob } from "glob";
 import path from "path";
-import { errorHandlerMiddleware } from "../App/middlewares";
+import { errorHandlerMiddleware } from "./middlewares";
 import { createServer, Server as HttpServer } from "http";
 
 export class AppServer {
